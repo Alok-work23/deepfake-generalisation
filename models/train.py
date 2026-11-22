@@ -51,7 +51,12 @@ p.add_argument("--seed", type=int, default=42)
 # for quickly checking whether the code works.
 p.add_argument("--dry_run", action="store_true")
 
+p.add_argument("--augment", action="store_true")
+
 args = p.parse_args()
+
+if args.augment:
+    from augment import augment_training_image
 
 
 # ============================================================
@@ -179,7 +184,8 @@ eval_tf = transforms.Compose([
 
 class FrameDS(Dataset):
 
-    def __init__(self, d, tf):
+    def __init__(self, d, tf, augment=False):
+        self.augment = augment
 
         # Store the dataframe and reset its row numbering.
         self.d = d.reset_index(drop=True)
@@ -201,7 +207,10 @@ class FrameDS(Dataset):
         img = Image.open(r.path).convert("RGB")
 
         # Apply preprocessing and convert the label to float.
-        return self.tf(img), float(r.label)
+        label = float(r.label)
+        if self.augment:
+            img, label = augment_training_image(img, label)
+        return self.tf(img), label
 
 
 # ============================================================
@@ -215,7 +224,7 @@ class FrameDS(Dataset):
 def loader(d, tf, shuffle):
 
     return DataLoader(
-        FrameDS(d, tf),
+        FrameDS(d, tf, augment=args.augment and shuffle),
 
         # Number of images loaded in one batch.
         batch_size=args.batch,
@@ -449,6 +458,10 @@ def eer(y, s):
 # from being mixed together.
 
 run_dir = f"/kaggle/working/runs/{args.train_method}_seed{args.seed}"
+
+if args.augment:
+    mode = "augmented-dry-run" if args.dry_run else "augmented"
+    run_dir = f"/kaggle/working/results/{mode}/runs/{args.train_method}_seed{args.seed}"
 
 os.makedirs(run_dir, exist_ok=True)
 
