@@ -10,6 +10,31 @@ Makes (in figures/):
   experiment.png      experiment design diagram
   seed_summary.csv + seed_variance.png   only if seeds 43/44 are present
 """
+# ======================================================================
+# READ THIS FIRST (plain-language overview)
+# ----------------------------------------------------------------------
+# This file makes extra figures for the report. It needs NO GPU and NO images:
+# it only reads the result tables (CSV files) that training already saved
+# in results/baseline and results/augmented.
+#
+# Words used below:
+#   "cell"      = one (trained-on method, tested-on method) pair, e.g. trained on
+#                 FaceSwap and tested on DeepFakes. We have a 4 x 5 grid of cells.
+#   "diagonal"  = cells where train method == test method (the model has seen it).
+#   "unseen"    = all other cells (the model never saw that method in training).
+#   AUC         = ranking score, 0.5 = random guessing, 1.0 = perfect.
+#   EER         = equal error rate = error when false alarms equal missed fakes
+#                 (lower is better).
+#   ROC curve   = plot of true-positive rate against false-positive rate.
+#
+# What it produces (saved in figures/ or results/):
+#   1. eer_table.csv      - EER numbers as a table
+#   2. seen_vs_unseen.png - average AUC on seen vs unseen methods
+#   3. roc_curves.png     - ROC curves for two baseline models
+#   4. pipeline.png, split.png, experiment.png - simple box-and-arrow diagrams
+#   5. seed_summary.csv / seed_variance.png - ONLY if results of more than one
+#      seed exist (we currently have only seed 42, so this part is skipped)
+# ======================================================================
 import glob, os, re  # standard tools for file search, paths and regex
 import numpy as np  # numpy does fast maths on arrays
 import pandas as pd  # pandas handles tables (like Excel in code)
