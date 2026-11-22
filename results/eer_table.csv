@@ -1,0 +1,9 @@
+,train_method,Deepfakes,Face2Face,FaceSwap,NeuralTextures,FaceShifter
+baseline_eer,Deepfakes,0.136,0.424,0.571,0.336,0.454
+baseline_eer,Face2Face,0.326,0.174,0.446,0.376,0.553
+baseline_eer,FaceSwap,0.489,0.447,0.148,0.52,0.526
+baseline_eer,NeuralTextures,0.321,0.399,0.539,0.226,0.44
+augmented_eer,Deepfakes,0.195,0.409,0.473,0.379,0.461
+augmented_eer,Face2Face,0.35,0.234,0.435,0.412,0.511
+augmented_eer,FaceSwap,0.422,0.42,0.197,0.461,0.459
+augmented_eer,NeuralTextures,0.343,0.372,0.46,0.273,0.475
