@@ -8,6 +8,37 @@ Writes:
   figures/diff_ci.png           change in AUC per cell with 95% CI
   results/top_errors.csv        most confident wrong frames per model/test method
 """
+# ======================================================================
+# READ THIS FIRST (plain-language overview)
+# ----------------------------------------------------------------------
+# Our experiment gave one score (AUC) for each of 20 cells:
+#     4 models (trained on one fake method each)  x  5 test methods.
+# We did this twice: once for the baseline and once for the augmented models.
+# The augmented AUC is sometimes a bit higher or lower than the baseline.
+# QUESTION: is that change real, or just luck because the test set is small?
+#
+# Words used below:
+#   AUC        = score from 0 to 1 for how well the model ranks fakes above reals
+#                (0.5 = random guessing, 1.0 = perfect).
+#   Bootstrap  = re-run the AUC many times on randomly re-picked test videos
+#                (picking with replacement). The spread of those AUCs shows how
+#                much the score could move by luck.
+#   95% CI     = the range that holds the middle 95% of those bootstrap AUCs.
+#                If the CI of a change does NOT include 0, we call it significant.
+#   Why videos, not frames? Frames of one video look almost the same, so they are
+#                NOT independent. Re-picking whole videos is the honest way.
+#   Wilcoxon   = a test that asks "are the changes mostly in one direction?"
+#
+# Steps of this file:
+#   1. Load saved predictions of every model (seed 42).
+#   2. For each of the 20 cells, bootstrap the AUC of both models and their change.
+#   3. Save the CI tables (CSV files).
+#   4. Run the Wilcoxon tests and count significant cells.
+#   5. Error analysis: how many fakes are missed / reals wrongly flagged at 0.5.
+#   6. Draw the figure "diff_ci.png" and print a short summary.
+# NOTE: the CI only covers luck from the TEST data, not luck from TRAINING
+#       (that would need several seeds).
+# ======================================================================
 import glob, json, os  # standard library: file patterns, JSON writing, paths
 import numpy as np  # numpy for fast array maths
 import pandas as pd  # pandas for tables (DataFrames)
