@@ -1,0 +1,9 @@
+faces/
+*.mp4
+*.jpg
+*.png
+*.pth
+*.pt
+__pycache__/
+.ipynb_checkpoints/
+kaggle.json
