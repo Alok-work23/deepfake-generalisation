@@ -1,9 +1,19 @@
-*.pt
-*.pth
-*.ckpt
+# Large or private data: keep out of GitHub
+faces/
+frames.csv
 *.mp4
+*.avi
+*.mov
 *.jpg
 *.png
-frames.csv
+*.pth
+*.pt
+*.ckpt
+kaggle.json
+
+# Model checkpoints and temp files
 __pycache__/
 .ipynb_checkpoints/
+
+# Allow the report figures to be uploaded
+!figures/*.png
