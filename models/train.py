@@ -1,20 +1,32 @@
 
+# Walk Kaggle's input folders and create output directories.
 import os
+# Define and parse the configuration supplied on the command line.
 import argparse
+# Seed Python's random generator for reproducible augmentation choices.
 import random
 
+# Use NumPy for numerical operations when calculating metrics.
 import numpy as np
+# Use pandas to load, filter, and write tabular CSV data.
 import pandas as pd
 
+# PyTorch handles tensors, GPU computation, training, and saved weights.
 import torch
+# Use PyTorch's neural-network module for the binary classification loss.
 import torch.nn as nn
 
+# Load a crop from disk and convert it to RGB.
 from PIL import Image
+# Dataset describes one example at a time. DataLoader groups examples into batches.
 from torch.utils.data import Dataset, DataLoader
+# Compose image operations such as flipping, tensor conversion, and normalization.
 from torchvision import transforms
 
+# Load the pretrained EfficientNet architecture.
 import timm
 
+# Calculate the ROC curve and the area under it.
 from sklearn.metrics import roc_auc_score, roc_curve
 
 
@@ -51,6 +63,7 @@ p.add_argument("--seed", type=int, default=42)
 # for quickly checking whether the code works.
 p.add_argument("--dry_run", action="store_true")
 
+# Enable augmentation only when this flag appears on the command line.
 p.add_argument("--augment", action="store_true")
 
 args = p.parse_args()
@@ -91,8 +104,10 @@ dev = "cuda"
 
 ROOT = None
 
+# os.walk yields the current directory path, subdirectory names, and filenames. The last matching directory becomes ROOT.
 for dp, dn, fn in os.walk("/kaggle/input"):
 
+    # Look for the manifest name among the files in this directory.
     if "frames.csv" in fn:
         ROOT = dp
 
@@ -121,6 +136,7 @@ TEST_METHODS = [
     "Face2Face",
     "FaceSwap",
     "NeuralTextures",
+    # FaceShifter appears in evaluation only in the four-run experiment.
     "FaceShifter"
 ]
 
@@ -188,6 +204,7 @@ class FrameDS(Dataset):
         self.augment = augment
 
         # Store the dataframe and reset its row numbering.
+        # Reset the filtered table's row index so its rows are easy to address in order.
         self.d = d.reset_index(drop=True)
 
         # Store the image transformations.
@@ -207,6 +224,7 @@ class FrameDS(Dataset):
         img = Image.open(r.path).convert("RGB")
 
         # Apply preprocessing and convert the label to float.
+        # Convert the CSV target to a floating-point value for the binary loss.
         label = float(r.label)
         if self.augment:
             img, label = augment_training_image(img, label)
@@ -224,6 +242,7 @@ class FrameDS(Dataset):
 def loader(d, tf, shuffle):
 
     return DataLoader(
+        # Only the training loader passes shuffle=True, so evaluation never calls augmentation.
         FrameDS(d, tf, augment=args.augment and shuffle),
 
         # Number of images loaded in one batch.
@@ -256,6 +275,7 @@ def loader(d, tf, shuffle):
 # We do not use other fake generation methods for training.
 
 train_df = df[
+    # Take training frames from the existing split column.
     (df.split == "train") &
     (df.method.isin(["original", args.train_method]))
 ]
@@ -265,6 +285,7 @@ train_df = df[
 # It is not used to update model weights.
 
 val_df = df[
+    # Use the existing validation split to decide which epoch's weights to save.
     (df.split == "val") &
     (df.method.isin(["original", args.train_method]))
 ]
@@ -328,7 +349,9 @@ model = timm.create_model(
 #
 # To reduce this problem, we calculate a positive class weight.
 
+# Count the fake labels in the manifest before on-the-fly blending.
 n_pos = (train_df.label == 1).sum()
+# Count the real labels from the same filtered training table.
 n_neg = (train_df.label == 0).sum()
 
 # Give more importance to the fake class if there are
@@ -386,6 +409,7 @@ scaler = torch.cuda.amp.GradScaler()
 # is fake, while a score closer to 0 means it thinks
 # the image is real.
 
+# Disable gradient tracking throughout prediction to save memory.
 @torch.no_grad()
 def predict(d):
 
@@ -393,6 +417,7 @@ def predict(d):
 
     out = []
 
+    # Keep batches in row order so scores line up with the original table. Ignore labels here.
     for x, _ in loader(d, eval_tf, False):
 
         # Use FP16 autocasting for faster inference on GPU.
@@ -440,6 +465,7 @@ def eer(y, s):
     fnr = 1 - tpr
 
     # Find the threshold where FPR and FNR are closest.
+    # Pick the index where the false-positive and false-negative rates are closest, ignoring NaNs.
     i = np.nanargmin(np.abs(fnr - fpr))
 
     # Return the average of the two error rates.
@@ -457,8 +483,10 @@ def eer(y, s):
 # This prevents results from different experiments
 # from being mixed together.
 
+# Use the baseline output location unless augmentation is enabled.
 run_dir = f"/kaggle/working/runs/{args.train_method}_seed{args.seed}"
 
+# Import the helper only for augmented runs so baseline runs can start without it.
 if args.augment:
     mode = "augmented-dry-run" if args.dry_run else "augmented"
     run_dir = f"/kaggle/working/results/{mode}/runs/{args.train_method}_seed{args.seed}"
@@ -481,7 +509,9 @@ os.makedirs(run_dir, exist_ok=True)
 #
 # This process repeats for the specified number of epochs.
 
+# Start below all valid AUC values so the first valid epoch can become the best.
 best_auc = -1
+# This variable will hold a snapshot of the best model weights.
 best_state = None
 
 for ep in range(args.epochs):
@@ -492,7 +522,9 @@ for ep in range(args.epochs):
     for x, y in loader(train_df, train_tf, True):
 
         # Move images and labels to GPU.
+        # Move input images to the same GPU as the model.
         x = x.to(dev)
+        # Move their target labels to the GPU as well.
         y = y.to(dev)
 
         # Mixed-precision forward pass.
@@ -538,6 +570,7 @@ for ep in range(args.epochs):
 
     print(
         f"epoch {ep+1} "
+        # Report the last batch's loss for this epoch.
         f"loss {loss.item():.4f} "
         f"val_auc {v_auc:.4f}"
     )
@@ -560,6 +593,7 @@ for ep in range(args.epochs):
         best_auc = v_auc
 
         best_state = {
+            # Copy each parameter so later optimizer steps cannot change the saved snapshot.
             k: t.detach().clone()
             for k, t in model.state_dict().items()
         }
@@ -617,9 +651,11 @@ for tm in TEST_METHODS:
     ].copy()
 
     # Generate fake probabilities for all selected images.
+    # Score the test crops using the selected validation checkpoint.
     t["score"] = predict(t)
 
     # Store the name of the fake method being tested.
+    # Tag the rows with this comparison, including the real crops reused across comparisons.
     t["test_method"] = tm
 
     # Save image paths, labels, predictions, and test method.
@@ -702,6 +738,7 @@ for tm in TEST_METHODS:
 
 pd.concat(preds).to_csv(
     f"{run_dir}/predictions.csv",
+    # Write the CSV without the pandas row index.
     index=False
 )
 
@@ -716,6 +753,7 @@ pd.concat(preds).to_csv(
 
 pd.DataFrame(results).to_csv(
     f"{run_dir}/results.csv",
+    # Write the CSV without the pandas row index.
     index=False
 )
 
@@ -726,4 +764,5 @@ pd.DataFrame(results).to_csv(
 # All model weights and evaluation results have now
 # been saved inside the experiment folder.
 
+# Display the run folder containing the checkpoint and both CSVs.
 print("saved", run_dir)
