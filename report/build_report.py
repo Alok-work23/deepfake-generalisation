@@ -1,4 +1,4 @@
-"""Builds report/ELCVIA_report.pdf following the ELCVIA camera-ready template.
+"""Builds report/Deepfake_Generalisation_Report.pdf following the ELCVIA camera-ready template.
 
 Template rules (ELCVIA_Template.pdf, Tables 1 and 2):
   A4, top/left margin 2 cm, text area 17 cm x 25 cm,
@@ -7,6 +7,33 @@ Template rules (ELCVIA_Template.pdf, Tables 1 and 2):
 
 Run:  python report/build_report.py
 """
+# ======================================================================
+# READ THIS FIRST (plain-language overview)
+# ----------------------------------------------------------------------
+# This script writes the report PDF by itself, using the reportlab library.
+# We did not use LaTeX because the journal style files were not available.
+# The layout copies the ELCVIA template (page size, margins, fonts, sizes).
+#
+# How the file is organised, from top to bottom:
+#   1. Imports and settings (paths, fonts, title, authors, dates).
+#   2. "styles"      - how each kind of text looks (title, headings, body ...).
+#   3. Small helpers - P() makes a paragraph, bullets()/numbered() make lists,
+#                      grid_table() makes a table, fig()/add_fig() add pictures.
+#   4. class Doc     - page decorations: the header line on every page, page
+#                      numbers, and the footnote on page 1.
+#   5. story()       - the actual CONTENT of the report, in order:
+#                      abstract, sections 1-10, references. Edit the report text here.
+#   6. build()/main  - build the PDF twice. The first run counts the pages, the
+#                      second run prints the correct page range (for example
+#                      "1-9") in the headers.
+#
+# Good to know:
+#   - add_fig() shows a figure ONLY if its PNG file exists in figures/, so the
+#     report still builds when some figures are missing.
+#   - Figures and tables are numbered automatically in the order they appear.
+#   - Run it with:  python report/build_report.py   (needs Times New Roman fonts
+#     in C:\Windows\Fonts, so it works on Windows).
+# ======================================================================
 import os  # import the os module for file paths
 import sys  # import sys (not used much here)
 from reportlab.lib.pagesizes import A4  # import the A4 page size
@@ -22,7 +49,7 @@ from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
 
 HERE = os.path.dirname(os.path.abspath(__file__))  # folder that contains this script
 ROOT = os.path.dirname(HERE)  # parent folder = project root
-OUT = os.path.join(HERE, "ELCVIA_report.pdf")  # path of the PDF we will create
+OUT = os.path.join(HERE, "Deepfake_Generalisation_Report.pdf")  # path of the PDF we will create
 
 # ---- fonts (Times New Roman, the "Times" of the template) -----------------
 FD = r"C:\Windows\Fonts"  # folder with Windows fonts
