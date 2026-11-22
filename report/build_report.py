@@ -341,14 +341,14 @@ def story():  # function that builds the list of report content
     cols = ["Trained on", "DeepFakes", "Face2Face", "FaceSwap", "NeuralTextures", "FaceShifter"]  # table header names
     cw = [3.0 * cm, 2.8 * cm, 2.8 * cm, 2.8 * cm, 3.3 * cm, 2.3 * cm]  # column widths of the results tables
     base = [cols,  # baseline AUC rows (header first)
-            ["DeepFakes", "0.943", "0.607", "0.398", "0.728", "0.570"],  # one table row
+            ["DeepFakes", "0.943", "0.607", "0.398", "0.729", "0.570"],  # one table row
             ["Face2Face", "0.728", "0.901", "0.562", "0.671", "0.436"],  # one table row
             ["FaceSwap", "0.516", "0.576", "0.926", "0.468", "0.475"],  # one table row
             ["NeuralTextures", "0.738", "0.635", "0.445", "0.854", "0.575"]]  # one table row
     aug = [cols,  # augmented AUC rows (header first)
            ["DeepFakes", "0.878", "0.631", "0.549", "0.661", "0.568"],  # one table row
-           ["Face2Face", "0.703", "0.838", "0.608", "0.630", "0.493"],  # one table row
-           ["FaceSwap", "0.605", "0.600", "0.866", "0.555", "0.570"],  # one table row
+           ["Face2Face", "0.703", "0.838", "0.609", "0.629", "0.493"],  # one table row
+           ["FaceSwap", "0.605", "0.601", "0.867", "0.555", "0.570"],  # one table row
            ["NeuralTextures", "0.716", "0.674", "0.553", "0.794", "0.536"]]  # one table row
 
     s.append(P("5.1 Baseline matrix (AUC)", h2))  # add the 5.1 subsection heading
@@ -381,7 +381,7 @@ def story():  # function that builds the list of report content
         # Bullet list of the biggest gains and losses.
         "<b>Gains:</b> FaceSwap-trained model on DeepFakes (0.516 &rarr; 0.605) and on FaceShifter "  # text of the report (continued)
         "(0.475 &rarr; 0.570); DeepFakes-trained model on FaceSwap (0.398 &rarr; 0.549).",  # text of the report (continued)
-        "<b>Losses:</b> DeepFakes-trained model on NeuralTextures (0.728 &rarr; 0.661); NeuralTextures-trained "  # text of the report (continued)
+        "<b>Losses:</b> DeepFakes-trained model on NeuralTextures (0.729 &rarr; 0.661); NeuralTextures-trained "  # text of the report (continued)
         "model on FaceShifter (0.575 &rarr; 0.536).",  # text of the report (continued)
     ]))  # continuation of the statement above
 
