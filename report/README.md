@@ -1,7 +1,7 @@
 # Cross-Manipulation Generalisation in Deepfake Face Detection
 
 Team: Arun Kumar, Amit Kumar, Alok Raj, Arpita Tripathi
-Date: [date]
+Date: [22-11-2026]
 
 ## 1. Introduction
 
