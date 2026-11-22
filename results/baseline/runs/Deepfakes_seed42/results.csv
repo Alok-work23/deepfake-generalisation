@@ -1,0 +1,6 @@
+train_method,test_method,seed,epochs,auc,eer,n_pos,n_neg
+Deepfakes,Deepfakes,42,5,0.9429,0.1364,700,700
+Deepfakes,Face2Face,42,5,0.6071,0.4236,700,700
+Deepfakes,FaceSwap,42,5,0.3984,0.5714,700,700
+Deepfakes,NeuralTextures,42,5,0.7285,0.3364,700,700
+Deepfakes,FaceShifter,42,5,0.5697,0.4543,700,700

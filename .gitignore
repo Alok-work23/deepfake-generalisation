@@ -1,0 +1,9 @@
+*.pt
+*.pth
+*.ckpt
+*.mp4
+*.jpg
+*.png
+frames.csv
+__pycache__/
+.ipynb_checkpoints/
