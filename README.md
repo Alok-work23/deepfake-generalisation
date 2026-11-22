@@ -4,7 +4,7 @@
 
 Deepfake detectors often score very well on the manipulation method they were trained on, but fail on methods they have never seen. This project measures that gap on FaceForensics++ (c23) by training one detector per manipulation method and testing it on all the others. It then tests whether blending-based augmentation (with JPEG and blur) reduces the gap.
 
-The full write-up, in the ELCVIA journal format, is `report/ELCVIA_report.pdf`.
+The full write-up, in the ELCVIA journal format, is `report/Deepfake_Generalisation_Report.pdf`.
 
 ## Key results
 
@@ -33,7 +33,7 @@ evaluation/metrics.py  AUC / EER computation, checks and heat maps
 results/               baseline/, augmented/ (per-run CSVs), comparison.csv, eer_table.csv,
                        auc_ci.csv, diff_ci.csv, stats_summary.json, top_errors.csv
 figures/               heat maps, ROC curves, diagrams
-report/                ELCVIA_report.pdf, build_report.py, make_figures.py, analysis.py
+report/                Deepfake_Generalisation_Report.pdf, build_report.py, make_figures.py, analysis.py
 ```
 
 ## Data
@@ -77,7 +77,7 @@ python models/train.py --train_method Deepfakes --dry_run
 ```
 python report/make_figures.py     # ROC curves, bar charts, diagrams, EER table, seed variance
 python report/analysis.py         # bootstrap CIs, Wilcoxon test, error analysis, diff_ci.png (takes a few minutes)
-python report/build_report.py     # builds report/ELCVIA_report.pdf
+python report/build_report.py     # builds report/Deepfake_Generalisation_Report.pdf
 ```
 
 `make_figures.py` needs pandas, scikit-learn and matplotlib; `analysis.py` also needs scipy. `build_report.py` needs reportlab and Times New Roman (Windows). The report adds optional figures and sections only when their files exist.
